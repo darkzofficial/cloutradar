@@ -4,6 +4,20 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
+// Supabase's messages are safe to show, so keep the original text after a plain explanation.
+function friendlyAuthError(message: string, status?: number) {
+  const m = message.toLowerCase();
+  if (m.includes('rate limit') || status === 429)
+    return 'Too many sign-in emails were sent recently. Wait an hour, or set up custom email sending in Supabase.';
+  if (m.includes('not authorized') || m.includes('not allowed for this'))
+    return `Supabase's built-in email only sends to members of the Supabase project until custom email (SMTP) is set up. (${message})`;
+  if (m.includes('signups not allowed') || m.includes('signup is disabled'))
+    return `New sign-ups are switched off in Supabase. (${message})`;
+  if (m.includes('invalid api key') || m.includes('secret api key') || status === 401)
+    return `The site's Supabase key was rejected. Check NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel. (${message})`;
+  return `Could not send the email: ${message || 'unknown error'}${status ? ` (code ${status})` : ''}`;
+}
+
 function LoginForm() {
   const params = useSearchParams();
   const nextRaw = params.get('next') || '/scan';
@@ -27,7 +41,8 @@ function LoginForm() {
     });
     if (error) {
       setState('error');
-      setMsg(error.message.includes('rate') ? 'Too many attempts. Wait a minute and try again.' : 'Could not send the email. Try again.');
+      setMsg(friendlyAuthError(error.message, error.status));
+      console.error('Sign-in email failed', error.status, error.message);
     } else setState('sent');
   }
 
