@@ -15,3 +15,13 @@ describe('periodEnd', () => {
     expect(periodEnd(asSub({ items: { data: [] } }))).toBeNull();
   });
 });
+
+import { normalizeSupabaseUrl } from '@/lib/config';
+describe('normalizeSupabaseUrl', () => {
+  it('strips paths, spaces and quotes', () => {
+    expect(normalizeSupabaseUrl(' https://abc.supabase.co/rest/v1/ ')).toBe('https://abc.supabase.co');
+    expect(normalizeSupabaseUrl('"https://abc.supabase.co/"')).toBe('https://abc.supabase.co');
+    expect(normalizeSupabaseUrl('abc.supabase.co')).toBe('https://abc.supabase.co');
+    expect(normalizeSupabaseUrl('')).toBe('');
+  });
+});
