@@ -3,7 +3,7 @@ import { getSession } from '@/lib/account';
 
 export const metadata = { title: 'Pricing' };
 
-export default async function PricingPage({ searchParams }: { searchParams: { canceled?: string } }) {
+export default async function PricingPage({ searchParams }: { searchParams: { canceled?: string; error?: string } }) {
   const { user, pro } = await getSession();
   return (
     <div className="wrap">
@@ -12,6 +12,11 @@ export default async function PricingPage({ searchParams }: { searchParams: { ca
         <h2>Unlimited scans for £6.99 a month</h2>
         <p>Free accounts get a few scans a month. Pro removes the limit and adds deeper checks and benchmarks. Cancel any time.</p>
         {searchParams.canceled && <div className="notice">Checkout was cancelled, so you haven&apos;t been charged.</div>}
+        {searchParams.error && (
+          <div className="notice err" role="alert">
+            We couldn&apos;t open checkout just now, and you haven&apos;t been charged. Please try again in a few minutes.
+          </div>
+        )}
         <Pricing signedIn={!!user} pro={pro} />
         <p className="mono" style={{ fontSize: 12, color: 'var(--dim)' }}>Price includes VAT where it applies. Payments are handled by Stripe.</p>
       </section>

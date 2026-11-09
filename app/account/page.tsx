@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 const fmtDate = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
-export default async function Account({ searchParams }: { searchParams: { upgraded?: string } }) {
+export default async function Account({ searchParams }: { searchParams: { upgraded?: string; error?: string } }) {
   const { user, profile, pro, usedThisMonth, limit } = await getSession();
   if (!user) redirect('/login?next=/account');
   const status = profile?.subscription_status;
@@ -21,6 +21,7 @@ export default async function Account({ searchParams }: { searchParams: { upgrad
             ? <div className="notice good">Welcome to Pro. You now have unlimited scans and the full report.</div>
             : <div className="notice orange">Payment received. Your Pro access is being switched on; refresh this page in a few seconds.</div>
         )}
+        {searchParams.error === 'billing' && <div className="notice err" role="alert">We couldn&apos;t open the billing page just now. Please try again in a few minutes.</div>}
         {status === 'past_due' && <div className="notice err">Your last payment didn&apos;t go through. Update your card in Manage billing to keep Pro.</div>}
         <div className="panel">
           <div className="ph"><span className="muted">Signed in as</span><span className="mono">{user.email}</span></div>
