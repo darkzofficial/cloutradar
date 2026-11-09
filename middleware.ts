@@ -1,9 +1,11 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { supabaseConfigured } from '@/lib/config';
 
 // Keeps the Supabase sign-in session fresh on every page request.
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
+  if (!supabaseConfigured()) return response;
   const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
     cookies: {
       getAll() {

@@ -1,5 +1,6 @@
 import 'server-only';
 import { createClient } from '@/lib/supabase/server';
+import { supabaseConfigured } from '@/lib/config';
 
 export interface Profile {
   id: string;
@@ -29,6 +30,9 @@ export function monthStart(d = new Date()) {
 }
 
 export async function getSession() {
+  if (!supabaseConfigured()) {
+    return { supabase: null as unknown as ReturnType<typeof createClient>, user: null, profile: null, pro: false, usedThisMonth: 0, limit: freeLimit() };
+  }
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { supabase, user: null, profile: null, pro: false, usedThisMonth: 0, limit: freeLimit() };
